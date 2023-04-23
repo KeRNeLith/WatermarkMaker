@@ -1,11 +1,9 @@
-﻿using System.Windows;
-
-namespace WatermarkMaker
+﻿namespace WatermarkMaker.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    internal partial class MainWindow : Window
+    internal partial class MainWindow
     {
         public MainWindow()
         {
