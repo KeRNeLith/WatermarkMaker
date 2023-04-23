@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>WatermarkMaker.Common</Title>
+    <RootNamespace>WatermarkMaker</RootNamespace>
+    <AssemblyName>WatermarkMaker.Common</AssemblyName>
+
+    <Copyright>Copyright © 2023</Copyright>
+    <Description>.NET library for watermark image.</Description>
+
+    <OutputType>Library</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+  </ItemGroup>
+</Project>

@@ -2,7 +2,7 @@
 
 namespace WatermarkMaker
 {
-    internal sealed class WatermarkParams
+    public sealed class WatermarkParams
     {
         private const double MinimalProportion = 0.01d;
         private const double MaximalProportion = 1.0d;

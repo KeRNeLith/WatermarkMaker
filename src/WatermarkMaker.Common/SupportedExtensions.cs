@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WatermarkMaker
 {
-    internal static class SupportedExtensions
+    public static class SupportedExtensions
     {
         private const string Png = ".png";
 

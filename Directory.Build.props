@@ -1,15 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
   <PropertyGroup>
-    <Title>WatermarkMaker</Title>
-    <RootNamespace>WatermarkMaker</RootNamespace>
-    <AssemblyName>WatermarkMaker</AssemblyName>
-
-    <Copyright>Copyright © 2023</Copyright>
-    <Description>.NET Console application to add watermark image.</Description>
-
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net472</TargetFramework>
-
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
 
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -17,6 +8,12 @@
     <Owners>Alexandre Rabérin</Owners>
     <Authors>Alexandre Rabérin</Authors>
     <Company>Alexandre Rabérin</Company>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/KeRNeLith/WatermarkMaker</PackageProjectUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <RepositoryUrl>https://github.com/KeRNeLith/WatermarkMaker</RepositoryUrl>
   </PropertyGroup>
 
   <!-- Optimization configurations -->
@@ -40,8 +37,4 @@
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
-  </ItemGroup>
 </Project>

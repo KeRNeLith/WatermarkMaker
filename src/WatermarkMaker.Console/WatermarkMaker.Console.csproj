@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>WatermarkMaker.Console</Title>
+    <RootNamespace>WatermarkMaker</RootNamespace>
+    <AssemblyName>WatermarkMaker.Console</AssemblyName>
+
+    <Copyright>Copyright © 2023</Copyright>
+    <Description>.NET Console application to add watermark image.</Description>
+
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <ProjectReference Include="../WatermarkMaker.Common/WatermarkMaker.Common.csproj" />
+  </ItemGroup>
+</Project>

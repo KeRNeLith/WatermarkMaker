@@ -5,7 +5,7 @@ using System.IO;
 
 namespace WatermarkMaker
 {
-    internal static class WatermarkUtils
+    public static class WatermarkUtils
     {
         public static void AddWatermarkImage(
             Image imageToWatermark,

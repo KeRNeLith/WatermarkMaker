@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>WatermarkMaker.GUI</Title>
+    <RootNamespace>WatermarkMaker</RootNamespace>
+    <AssemblyName>WatermarkMaker.GUI</AssemblyName>
+
+    <Copyright>Copyright © 2023</Copyright>
+    <Description>.NET WPF application to add watermark image.</Description>
+
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../WatermarkMaker.Common/WatermarkMaker.Common.csproj" />
+  </ItemGroup>
+</Project>
