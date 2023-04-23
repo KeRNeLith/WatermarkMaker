@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="WatermarkMaker.Views.MainWindow"
     x:ClassModifier="internal"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -11,6 +11,11 @@
     xmlns:viewModels="clr-namespace:WatermarkMaker.ViewModels"
     Title="Watermark GUI" Height="450" Width="800"
     d:DataContext="{d:DesignInstance {x:Type viewModels:MainWindowViewModel}}">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding CloseCommand, Mode=OneTime}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
     </Grid>
 </Window>
