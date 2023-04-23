@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>WatermarkMaker</Title>
+    <RootNamespace>WatermarkMaker</RootNamespace>
+    <AssemblyName>WatermarkMaker</AssemblyName>
+
+    <Copyright>Copyright © 2023</Copyright>
+    <Description>.NET Console application to add watermark image.</Description>
+
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+
+    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <Owners>Alexandre Rabérin</Owners>
+    <Authors>Alexandre Rabérin</Authors>
+    <Company>Alexandre Rabérin</Company>
+  </PropertyGroup>
+
+  <!-- Optimization configurations -->
+  <PropertyGroup>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <!-- C# configuration -->
+  <PropertyGroup>
+    <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+  </ItemGroup>
+</Project>
