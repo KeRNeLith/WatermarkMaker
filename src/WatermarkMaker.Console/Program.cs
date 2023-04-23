@@ -6,7 +6,7 @@ using System.Linq;
 using CommandLine;
 using static WatermarkMaker.WatermarkUtils;
 using static WatermarkMaker.SupportedExtensions;
-using static WatermarkMaker.Utils;
+using static WatermarkMaker.PathUtils;
 
 namespace WatermarkMaker
 {

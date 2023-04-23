@@ -2,7 +2,7 @@
 
 namespace WatermarkMaker
 {
-    public static class Utils
+    public static class PathUtils
     {
         public static string FixOptionPathFormat(string path)
         {
