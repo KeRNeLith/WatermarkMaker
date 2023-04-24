@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
+using MvvmDialogs.FrameworkDialogs.FolderBrowser;
 using MvvmDialogs.FrameworkDialogs.OpenFile;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -91,7 +93,33 @@ namespace WatermarkMaker.ViewModels
 
         private void OnBrowseInputFolder()
         {
-            throw new NotImplementedException();
+            var options = new FolderBrowserDialogSettings
+            {
+                Description = "Select the input folder",
+                ShowNewFolderButton = false
+            };
+
+            bool? result = _dialogService.ShowFolderBrowserDialog(this, options);
+            if (result.HasValue && result.Value)
+            {
+                string selectedFolderPath = options.SelectedPath;
+                if (PathUtils.PathEquals(selectedFolderPath, OutputFolderPath))
+                {
+                    _dialogService.ShowMessageBox(
+                        this,
+                        "Selected input folder is the same as the output folder."
+                        + Environment.NewLine
+                        + Environment.NewLine
+                        + "To avoid conflicts or data loss, output folder has been automatically updated to use \"Output\" sub-folder.",
+                        "Output folder conflict",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
+                    OutputFolderPath = Path.Combine(selectedFolderPath, "Output");
+                }
+
+                InputFolderPath = selectedFolderPath;
+            }
         }
 
         #endregion
@@ -110,7 +138,33 @@ namespace WatermarkMaker.ViewModels
 
         private void OnBrowseOutputFolder()
         {
-            throw new NotImplementedException();
+            var options = new FolderBrowserDialogSettings
+            {
+                Description = "Select the output folder",
+                ShowNewFolderButton = false
+            };
+
+            bool? result = _dialogService.ShowFolderBrowserDialog(this, options);
+            if (result.HasValue && result.Value)
+            {
+                string selectedFolderPath = options.SelectedPath;
+                if (PathUtils.PathEquals(selectedFolderPath, InputFolderPath))
+                {
+                    _dialogService.ShowMessageBox(
+                        this,
+                        "Selected output folder is the same as the input folder."
+                        + Environment.NewLine
+                        + Environment.NewLine
+                        + "To avoid conflicts or data loss, output folder has been automatically updated to use \"Output\" sub-folder.",
+                        "Output folder conflict",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
+                    selectedFolderPath = Path.Combine(selectedFolderPath, "Output");
+                }
+
+                OutputFolderPath = selectedFolderPath;
+            }
         }
 
         #endregion
