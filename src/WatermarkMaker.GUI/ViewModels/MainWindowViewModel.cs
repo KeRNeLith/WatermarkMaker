@@ -1,4 +1,8 @@
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Windows.Input;
+using MvvmDialogs.FrameworkDialogs.OpenFile;
 using Prism.Commands;
 using Prism.Mvvm;
 using WatermarkMaker.Data;
@@ -8,12 +12,20 @@ namespace WatermarkMaker.ViewModels
 {
     internal sealed class MainWindowViewModel : BindableBase
     {
-        public MainWindowViewModel()
+        private readonly MvvmDialogs.IDialogService _dialogService;
+
+        public MainWindowViewModel(MvvmDialogs.IDialogService dialogService)
         {
+            _dialogService = dialogService;
+            BrowseWatermarkFileCommand = new DelegateCommand(OnBrowseWatermarkFile);
+            BrowseInputFolderCommand = new DelegateCommand(OnBrowseInputFolder);
+            BrowseOutputFolderCommand = new DelegateCommand(OnBrowseOutputFolder);
             CloseCommand = new DelegateCommand(OnCloseCommand);
 
             _settings = SettingsToSession();
         }
+
+        private string _browseInitialFolder = string.Empty;
 
         #region Watermark file
 
@@ -23,6 +35,44 @@ namespace WatermarkMaker.ViewModels
         {
             get => _watermarkFilePath;
             set => SetProperty(ref _watermarkFilePath, value);
+        }
+
+        public ICommand BrowseWatermarkFileCommand { get; }
+
+        private void OnBrowseWatermarkFile()
+        {
+            string initialFolder = string.IsNullOrEmpty(_browseInitialFolder) || !Directory.Exists(_browseInitialFolder)
+                ? Environment.CurrentDirectory
+                : _browseInitialFolder;
+
+            var options = new OpenFileDialogSettings
+            {
+                AddExtension = true,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Title = "Select a watermark image",
+                InitialDirectory = initialFolder,
+                Filter = SupportedExtensions.GetFileFilters(),
+                FilterIndex = 0,
+                DefaultExt = SupportedExtensions.GetExtensions().First()
+            };
+
+            bool? result = _dialogService.ShowOpenFileDialog(this, options);
+            if (result.HasValue && result.Value)
+            {
+                string selectedFilePath = options.FileName;
+                string? selectedFolderPath = Path.GetDirectoryName(selectedFilePath);
+                if (!string.IsNullOrEmpty(selectedFolderPath))
+                {
+                    _browseInitialFolder = selectedFolderPath;
+                }
+
+                WatermarkFilePath = selectedFilePath;
+            }
+            else
+            {
+                _browseInitialFolder = initialFolder;
+            }
         }
 
         #endregion
@@ -37,6 +87,13 @@ namespace WatermarkMaker.ViewModels
             set => SetProperty(ref _inputFolderPath, value);
         }
 
+        public ICommand BrowseInputFolderCommand { get; }
+
+        private void OnBrowseInputFolder()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region Output folder
@@ -47,6 +104,13 @@ namespace WatermarkMaker.ViewModels
         {
             get => _outputFolderPath;
             set => SetProperty(ref _outputFolderPath, value);
+        }
+
+        public ICommand BrowseOutputFolderCommand { get; }
+
+        private void OnBrowseOutputFolder()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -92,6 +156,7 @@ namespace WatermarkMaker.ViewModels
             _settings.Proportion = Proportion;
             _settings.RightOffset = RightOffset;
             _settings.BottomOffset = BottomOffset;
+            _settings.BrowseInitialFolder = _browseInitialFolder;
             _settings.SerializeToXml(SettingsFileName);
         }
 
@@ -109,6 +174,7 @@ namespace WatermarkMaker.ViewModels
             Proportion = settings.Proportion;
             RightOffset = settings.RightOffset;
             BottomOffset = settings.BottomOffset;
+            _browseInitialFolder = settings.BrowseInitialFolder;
             return settings;
         }
 

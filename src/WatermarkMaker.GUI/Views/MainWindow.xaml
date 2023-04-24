@@ -1,4 +1,4 @@
-<Window
+﻿<Window
     x:Class="WatermarkMaker.Views.MainWindow"
     x:ClassModifier="internal"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,10 +6,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
+    xmlns:dialogs="https://github.com/fantasticfiasco/mvvm-dialogs"
+    xmlns:userControls="clr-namespace:WatermarkMaker.UserControls"
     xmlns:viewModels="clr-namespace:WatermarkMaker.ViewModels"
     Title="Watermark GUI" Height="450" Width="800"
+    dialogs:DialogServiceViews.IsRegistered="True"
     d:DataContext="{d:DesignInstance {x:Type viewModels:MainWindowViewModel}}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
@@ -17,5 +21,82 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Preview:" />
+            <TextBlock Grid.Row="1" Text="TODO" />
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Watermark image:"/>
+            <userControls:PathPicker
+                Grid.Row="0" Grid.Column="1"
+                Margin="4 0 0 0"
+                Path="{Binding WatermarkFilePath, Mode=TwoWay}"
+                BrowseCommand="{Binding BrowseWatermarkFileCommand, Mode=OneTime}" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Input folder:"/>
+            <userControls:PathPicker
+                Grid.Row="1" Grid.Column="1"
+                Margin="4 0 0 0"
+                Path="{Binding InputFolderPath, Mode=TwoWay}"
+                BrowseCommand="{Binding BrowseInputFolderCommand, Mode=OneTime}" />
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Output folder:"/>
+            <userControls:PathPicker
+                Grid.Row="2" Grid.Column="1"
+                Margin="4 0 0 0"
+                Path="{Binding OutputFolderPath, Mode=TwoWay}"
+                BrowseCommand="{Binding BrowseOutputFolderCommand, Mode=OneTime}" />
+
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Proportion:"/>
+            <xceed:DoubleUpDown
+                Grid.Row="3" Grid.Column="1"
+                Margin="4 0 0 0"
+                Minimum="0.01" Maximum="1"
+                FormatString="P"
+                Increment="0.01"
+                Value="{Binding Proportion, Mode=TwoWay}" />
+
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Right offset:"/>
+            <xceed:DoubleUpDown
+                Grid.Row="4" Grid.Column="1"
+                Margin="4 0 0 0"
+                Minimum="0" Maximum="1"
+                FormatString="P"
+                Increment="0.01"
+                Value="{Binding RightOffset, Mode=TwoWay}" />
+
+            <TextBlock Grid.Row="5" Grid.Column="0" Text="Bottom offset:"/>
+            <xceed:DoubleUpDown
+                Grid.Row="5" Grid.Column="1"
+                Margin="4 0 0 0"
+                Minimum="0" Maximum="1"
+                FormatString="P"
+                Increment="0.01"
+                Value="{Binding BottomOffset, Mode=TwoWay}" />
+        </Grid>
     </Grid>
 </Window>

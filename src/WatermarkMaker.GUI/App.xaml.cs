@@ -1,4 +1,8 @@
-using System.Windows;
+﻿using System.Windows;
+using Prism.Ioc;
+using WatermarkMaker.Views;
+using DialogService = MvvmDialogs.DialogService;
+using IDialogService = MvvmDialogs.IDialogService;
 
 namespace WatermarkMaker
 {
@@ -16,6 +20,7 @@ namespace WatermarkMaker
         /// <inheritdoc />
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterSingleton<IDialogService, DialogService>();
         }
     }
 }

@@ -150,7 +150,7 @@ namespace WatermarkMaker
                     else
                     {
                         IEnumerable<string> imageToTreatPaths = Directory
-                            .EnumerateFiles(inputPath, GetFileFilters(), SearchOption.TopDirectoryOnly)
+                            .EnumerateFiles(inputPath, GetSearchPattern(), SearchOption.TopDirectoryOnly)
                             .Except(new[] { watermarkFilePath });
                         foreach (string imagePath in imageToTreatPaths)
                         {

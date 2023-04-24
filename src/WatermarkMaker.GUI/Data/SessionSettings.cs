@@ -25,5 +25,8 @@ namespace WatermarkMaker.Data
 
         [XmlElement("BottomOffset")]
         public double BottomOffset { get; set; }
+
+        [XmlElement("BrowseInitialFolder")]
+        public string BrowseInitialFolder { get; set; } = string.Empty;
     }
 }
