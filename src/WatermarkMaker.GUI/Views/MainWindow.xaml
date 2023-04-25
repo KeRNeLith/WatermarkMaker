@@ -12,7 +12,8 @@
     xmlns:dialogs="https://github.com/fantasticfiasco/mvvm-dialogs"
     xmlns:userControls="clr-namespace:WatermarkMaker.UserControls"
     xmlns:viewModels="clr-namespace:WatermarkMaker.ViewModels"
-    Title="Watermark GUI" Height="450" Width="800"
+    Title="Watermark Maker"
+    Height="450" Width="800"
     dialogs:DialogServiceViews.IsRegistered="True"
     d:DataContext="{d:DesignInstance {x:Type viewModels:MainWindowViewModel}}">
     <i:Interaction.Triggers>
@@ -38,6 +39,7 @@
 
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -97,6 +99,15 @@
                 FormatString="P"
                 Increment="0.01"
                 Value="{Binding BottomOffset, Mode=TwoWay}" />
+
+            <Button
+                Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
+                Margin="0 10 10 0"
+                Width="90"
+                Height="25"
+                HorizontalAlignment="Right"
+                Content="Apply"
+                Command="{Binding ApplyCommand, Mode=OneTime}" />
         </Grid>
     </Grid>
 </Window>

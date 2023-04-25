@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using MvvmDialogs.FrameworkDialogs.FolderBrowser;
@@ -8,20 +9,28 @@ using MvvmDialogs.FrameworkDialogs.OpenFile;
 using Prism.Commands;
 using Prism.Mvvm;
 using WatermarkMaker.Data;
+using WatermarkMaker.Threading;
 using static WatermarkMaker.Utils.SerializationUtils;
 
 namespace WatermarkMaker.ViewModels
 {
     internal sealed class MainWindowViewModel : BindableBase
     {
+        private readonly IDispatcher _dispatcher;
         private readonly MvvmDialogs.IDialogService _dialogService;
 
-        public MainWindowViewModel(MvvmDialogs.IDialogService dialogService)
+        public MainWindowViewModel(IDispatcher dispatcher, MvvmDialogs.IDialogService dialogService)
         {
+            _dispatcher = dispatcher;
             _dialogService = dialogService;
+
             BrowseWatermarkFileCommand = new DelegateCommand(OnBrowseWatermarkFile);
             BrowseInputFolderCommand = new DelegateCommand(OnBrowseInputFolder);
             BrowseOutputFolderCommand = new DelegateCommand(OnBrowseOutputFolder);
+            ApplyCommand = new DelegateCommand(OnApply, CanApply)
+                .ObservesProperty(() => WatermarkFilePath)
+                .ObservesProperty(() => InputFolderPath)
+                .ObservesProperty(() => OutputFolderPath);
             CloseCommand = new DelegateCommand(OnCloseCommand);
 
             _settings = SettingsToSession();
@@ -193,6 +202,49 @@ namespace WatermarkMaker.ViewModels
         {
             get => _bottomOffset;
             set => SetProperty(ref _bottomOffset, value);
+        }
+
+        #endregion
+
+        #region Apply command
+
+        public ICommand ApplyCommand { get; }
+
+        private bool CanApply()
+        {
+            return File.Exists(WatermarkFilePath)
+                   && Directory.Exists(InputFolderPath)
+                   && !string.IsNullOrEmpty(OutputFolderPath);
+        }
+
+        private void OnApply()
+        {
+            const int itemCount = 20;
+            var progressDialogViewModel = new ProgressDialogViewModel
+            {
+                Title = "Applying watermark",
+                ProgressMessage = "Start watermark processing...",
+                IsIndeterminate = false,
+                Minimum = 0,
+                Maximum = itemCount
+            };
+
+            Task.Run(async () =>
+            {
+                for (int i = 1; i <= itemCount; i++)
+                {
+                    (int Progress, string ProgressMessage) progress = (i, $"Fake treatment {i}");
+                    _ = _dispatcher.InvokeOnUI(() =>
+                    {
+                        progressDialogViewModel.Progress = progress.Progress;
+                        progressDialogViewModel.ProgressMessage = progress.ProgressMessage;
+                    });
+
+                    await Task.Delay(200);
+                }
+            });
+
+            _dialogService.ShowDialog(this, progressDialogViewModel);
         }
 
         #endregion
