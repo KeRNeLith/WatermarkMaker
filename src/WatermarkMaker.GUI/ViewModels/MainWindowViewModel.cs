@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -21,6 +22,7 @@ using static WatermarkMaker.Utils.ImageUtils;
 using static WatermarkMaker.Utils.SerializationUtils;
 using static WatermarkMaker.WatermarkUtils;
 using Image = System.Drawing.Image;
+using Timer = System.Timers.Timer;
 
 namespace WatermarkMaker.ViewModels
 {
@@ -44,6 +46,8 @@ namespace WatermarkMaker.ViewModels
             CloseCommand = new DelegateCommand(OnCloseCommand);
 
             _settings = SettingsToSession();
+            _sessionAutoSave.Elapsed += OnAutoSaveSessionSettings;
+            _sessionAutoSave.Start();
 
             GeneratePreviewIfPossible();
         }
@@ -381,13 +385,9 @@ namespace WatermarkMaker.ViewModels
 
         #endregion
 
-        #region Application settings
-
-        public WindowViewModel Application { get; } = new();
-
-        #endregion
-
         #region Session data
+
+        private readonly Timer _sessionAutoSave = new(TimeSpan.FromMinutes(10d).TotalMilliseconds);
 
         private const string SettingsFileName = "sessionSettings.xml";
         private readonly SessionSettings _settings;
@@ -499,6 +499,21 @@ namespace WatermarkMaker.ViewModels
             #endregion
         }
 
+        #region Application settings
+
+        public WindowViewModel Application { get; } = new();
+
+        #endregion
+
+        private async void OnAutoSaveSessionSettings(object? sender, ElapsedEventArgs args)
+        {
+            _sessionAutoSave.Stop();
+
+            await Task.Run(SessionToSettings);
+
+            _sessionAutoSave.Start();
+        }
+
         #endregion
 
         #region On Close
@@ -507,6 +522,9 @@ namespace WatermarkMaker.ViewModels
 
         private void OnCloseCommand()
         {
+            _sessionAutoSave.Stop();
+            _sessionAutoSave.Elapsed -= OnAutoSaveSessionSettings;
+
             SessionToSettings();
         }
 
