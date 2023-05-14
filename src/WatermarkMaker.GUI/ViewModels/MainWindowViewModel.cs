@@ -1,16 +1,24 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using MvvmDialogs.FrameworkDialogs.FolderBrowser;
 using MvvmDialogs.FrameworkDialogs.OpenFile;
 using Prism.Commands;
 using Prism.Mvvm;
 using WatermarkMaker.Data;
+using WatermarkMaker.Properties;
 using WatermarkMaker.Threading;
+using WatermarkMaker.Utils;
+using static WatermarkMaker.SupportedExtensions;
+using static WatermarkMaker.Utils.ImageUtils;
 using static WatermarkMaker.Utils.SerializationUtils;
+using static WatermarkMaker.WatermarkUtils;
+using Image = System.Drawing.Image;
 
 namespace WatermarkMaker.ViewModels
 {
@@ -34,6 +42,8 @@ namespace WatermarkMaker.ViewModels
             CloseCommand = new DelegateCommand(OnCloseCommand);
 
             _settings = SettingsToSession();
+
+            GeneratePreviewIfPossible();
         }
 
         private string _browseInitialFolder = string.Empty;
@@ -45,7 +55,7 @@ namespace WatermarkMaker.ViewModels
         public string WatermarkFilePath
         {
             get => _watermarkFilePath;
-            set => SetProperty(ref _watermarkFilePath, value);
+            set => SetProperty(ref _watermarkFilePath, value, GeneratePreviewIfPossible);
         }
 
         public ICommand BrowseWatermarkFileCommand { get; }
@@ -63,9 +73,9 @@ namespace WatermarkMaker.ViewModels
                 CheckPathExists = true,
                 Title = "Select a watermark image",
                 InitialDirectory = initialFolder,
-                Filter = SupportedExtensions.GetFileFilters(),
+                Filter = GetFileFilters(),
                 FilterIndex = 0,
-                DefaultExt = SupportedExtensions.GetExtensions().First()
+                DefaultExt = GetExtensions().First()
             };
 
             bool? result = _dialogService.ShowOpenFileDialog(this, options);
@@ -95,7 +105,7 @@ namespace WatermarkMaker.ViewModels
         public string InputFolderPath
         {
             get => _inputFolderPath;
-            set => SetProperty(ref _inputFolderPath, value);
+            set => SetProperty(ref _inputFolderPath, value, GeneratePreviewIfPossible);
         }
 
         public ICommand BrowseInputFolderCommand { get; }
@@ -131,6 +141,21 @@ namespace WatermarkMaker.ViewModels
             }
         }
 
+        private string? TryGetPreviewImageFilePath()
+        {
+            string inputFolderPath = InputFolderPath;
+            if (Directory.Exists(inputFolderPath))
+            {
+                string? previewImageFilePath = Directory
+                    .EnumerateFiles(inputFolderPath, GetSearchPattern(), SearchOption.TopDirectoryOnly)
+                    .Except(new[] { WatermarkFilePath })
+                    .FirstOrDefault();
+                return previewImageFilePath;
+            }
+
+            return null;
+        }
+
         #endregion
 
         #region Output folder
@@ -150,7 +175,7 @@ namespace WatermarkMaker.ViewModels
             var options = new FolderBrowserDialogSettings
             {
                 Description = "Select the output folder",
-                ShowNewFolderButton = false
+                ShowNewFolderButton = true
             };
 
             bool? result = _dialogService.ShowFolderBrowserDialog(this, options);
@@ -185,7 +210,7 @@ namespace WatermarkMaker.ViewModels
         public double Proportion
         {
             get => _proportion;
-            set => SetProperty(ref _proportion, value);
+            set => SetProperty(ref _proportion, value, GeneratePreviewIfPossible);
         }
 
         private double _rightOffset;
@@ -193,7 +218,7 @@ namespace WatermarkMaker.ViewModels
         public double RightOffset
         {
             get => _rightOffset;
-            set => SetProperty(ref _rightOffset, value);
+            set => SetProperty(ref _rightOffset, value, GeneratePreviewIfPossible);
         }
 
         private double _bottomOffset;
@@ -201,7 +226,7 @@ namespace WatermarkMaker.ViewModels
         public double BottomOffset
         {
             get => _bottomOffset;
-            set => SetProperty(ref _bottomOffset, value);
+            set => SetProperty(ref _bottomOffset, value, GeneratePreviewIfPossible);
         }
 
         #endregion
@@ -249,6 +274,80 @@ namespace WatermarkMaker.ViewModels
 
         #endregion
 
+        #region Preview
+
+        private BitmapSource? _noPreviewImage;
+
+        private BitmapSource NoPreviewImage => _noPreviewImage ??= ConvertToBitmap(Resources.NoPreview);
+
+        private BitmapSource? _previewImage;
+
+        public BitmapSource? PreviewImage
+        {
+            get => _previewImage;
+            private set => SetProperty(ref _previewImage, value);
+        }
+
+        private CancellationTokenSource? _previewGenerationTokenSource;
+
+        private void GeneratePreviewIfPossible()
+        {
+            string? previewImageFilePath = TryGetPreviewImageFilePath();
+            _previewGenerationTokenSource?.Cancel();
+            var tokenSource = new CancellationTokenSource();
+            _previewGenerationTokenSource = tokenSource;
+            Task _ = GeneratePreviewFromCurrentSettings(previewImageFilePath, tokenSource.Token);
+        }
+
+        private async Task GeneratePreviewFromCurrentSettings(string? previewImageFilePath, CancellationToken token)
+        {
+            Task noPreviewTask = _dispatcher.InvokeOnUI(() => PreviewImage = NoPreviewImage);
+
+            string watermarkFilePath = WatermarkFilePath;
+            if (string.IsNullOrWhiteSpace(watermarkFilePath) || !File.Exists(watermarkFilePath))
+                return;
+
+            if (string.IsNullOrWhiteSpace(previewImageFilePath) || !File.Exists(previewImageFilePath))
+                return;
+
+            var watermarkParams = new WatermarkParams(Proportion, RightOffset, BottomOffset);
+
+            await noPreviewTask;
+            await Task.Run(
+                async () =>
+                {
+                    await GeneratePreviewFrom(previewImageFilePath, watermarkFilePath, watermarkParams, token);
+                },
+                token);
+        }
+
+        private async Task GeneratePreviewFrom(
+            string imageToTreatFilePath,
+            string watermarkFilePath,
+            WatermarkParams parameters,
+            CancellationToken token)
+        {
+            using Image watermarkImage = Image.FromFile(watermarkFilePath);
+            using Image imageToTreat = Image.FromFile(imageToTreatFilePath);
+
+            if (token.IsCancellationRequested)
+                return;
+            AddWatermarkImage(imageToTreat, watermarkImage, parameters);
+
+            if (token.IsCancellationRequested)
+                return;
+            BitmapImage convertedImage = ConvertToBitmap(imageToTreat);
+
+            await _dispatcher.InvokeOnUI(() =>
+            {
+                if (token.IsCancellationRequested)
+                    return;
+                PreviewImage = convertedImage;
+            });
+        }
+
+        #endregion
+
         #region Session data
 
         private const string SettingsFileName = "sessionSettings.xml";
@@ -274,12 +373,12 @@ namespace WatermarkMaker.ViewModels
                 RightOffset = 0.02d,
                 BottomOffset = 0.02d
             };
-            WatermarkFilePath = settings.WatermarkFilePath;
-            InputFolderPath = settings.InputFolderPath;
-            OutputFolderPath = settings.OutputFolderPath;
-            Proportion = settings.Proportion;
-            RightOffset = settings.RightOffset;
-            BottomOffset = settings.BottomOffset;
+            _watermarkFilePath = settings.WatermarkFilePath;
+            _inputFolderPath = settings.InputFolderPath;
+            _outputFolderPath = settings.OutputFolderPath;
+            _proportion = settings.Proportion;
+            _rightOffset = settings.RightOffset;
+            _bottomOffset = settings.BottomOffset;
             _browseInitialFolder = settings.BrowseInitialFolder;
             return settings;
         }

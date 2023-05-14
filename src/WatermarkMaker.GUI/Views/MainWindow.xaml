@@ -21,23 +21,19 @@
             <i:InvokeCommandAction Command="{Binding CloseCommand, Mode=OneTime}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid>
+    <Grid Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
-            <ColumnDefinition />
+            <ColumnDefinition MaxWidth="700" />
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <Image
+            Grid.Column="0"
+            Source="{Binding PreviewImage, Mode=OneWay}" />
 
-            <TextBlock Grid.Row="0" Text="Preview:" />
-            <TextBlock Grid.Row="1" Text="TODO" />
-        </Grid>
-
-        <Grid Grid.Column="1">
+        <Grid
+            Grid.Column="1"
+            Margin="10 0 0 0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
