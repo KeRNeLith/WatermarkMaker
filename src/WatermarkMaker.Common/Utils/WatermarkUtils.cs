@@ -50,7 +50,7 @@ namespace WatermarkMaker
             Directory.CreateDirectory(outFolderPath);
             string outFilePath = Path.Combine(outFolderPath, Path.GetFileName(imageToTreatFilePath));
 
-            using MemoryStream memoryStream = new();
+            using var memoryStream = new MemoryStream();
             imageToTreat.Save(memoryStream, ImageFormat.Png);
             File.WriteAllBytes(outFilePath, memoryStream.ToArray());
         }

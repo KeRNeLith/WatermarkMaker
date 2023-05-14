@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Microsoft.Xaml.Behaviors.Core;
 using MvvmDialogs.FrameworkDialogs.FolderBrowser;
 using MvvmDialogs.FrameworkDialogs.OpenFile;
 using Prism.Commands;
@@ -141,19 +143,22 @@ namespace WatermarkMaker.ViewModels
             }
         }
 
-        private string? TryGetPreviewImageFilePath()
+        private IEnumerable<string> GetInputImageFilePaths()
         {
             string inputFolderPath = InputFolderPath;
             if (Directory.Exists(inputFolderPath))
             {
-                string? previewImageFilePath = Directory
+                return Directory
                     .EnumerateFiles(inputFolderPath, GetSearchPattern(), SearchOption.TopDirectoryOnly)
-                    .Except(new[] { WatermarkFilePath })
-                    .FirstOrDefault();
-                return previewImageFilePath;
+                    .Except(new[] { WatermarkFilePath });
             }
 
-            return null;
+            return Enumerable.Empty<string>();
+        }
+
+        private string? TryGetPreviewImageFilePath()
+        {
+            return GetInputImageFilePaths().FirstOrDefault();
         }
 
         #endregion
@@ -244,30 +249,58 @@ namespace WatermarkMaker.ViewModels
 
         private void OnApply()
         {
-            const int itemCount = 20;
+            string[] inputImageFilePaths = GetInputImageFilePaths().ToArray();
+            if (inputImageFilePaths.Length == 0)
+                return;
+
+            string outputFolderPath = OutputFolderPath;
+            if (!Directory.Exists(outputFolderPath))
+            {
+                Directory.CreateDirectory(outputFolderPath);
+            }
+
+            var applyTokenSource = new CancellationTokenSource();
             var progressDialogViewModel = new ProgressDialogViewModel
             {
-                Title = "Applying watermark",
-                ProgressMessage = "Start watermark processing...",
+                Title = "Applying watermark" + (inputImageFilePaths.Length > 1 ? "s" : string.Empty),
+                ProgressMessage = "Starting watermark processing...",
                 IsIndeterminate = false,
                 Minimum = 0,
-                Maximum = itemCount
+                Maximum = inputImageFilePaths.Length,
+                CancelCommand = new ActionCommand(() => applyTokenSource.Cancel())
             };
 
-            Task.Run(async () =>
-            {
-                for (int i = 1; i <= itemCount; i++)
+            CancellationToken token = applyTokenSource.Token;
+            var watermarkParams = new WatermarkParams(Proportion, RightOffset, BottomOffset);
+            string watermarkFilePath = WatermarkFilePath;
+            Task.Run(
+                () =>
                 {
-                    (int Progress, string ProgressMessage) progress = (i, $"Fake treatment {i}");
-                    _ = _dispatcher.InvokeOnUI(() =>
-                    {
-                        progressDialogViewModel.Progress = progress.Progress;
-                        progressDialogViewModel.ProgressMessage = progress.ProgressMessage;
-                    });
+                    using Image watermarkImage = Image.FromFile(watermarkFilePath);
 
-                    await Task.Delay(200);
-                }
-            });
+                    for (int i = 0; i < inputImageFilePaths.Length; ++i)
+                    {
+                        if (token.IsCancellationRequested)
+                            return;
+
+                        string imageFileName = Path.GetFileName(inputImageFilePaths[i]);
+                        (int Progress, string ProgressMessage) progress = (i, $"Treating {imageFileName}");
+                        _ = _dispatcher.BeginInvoke(() =>
+                        {
+                            progressDialogViewModel.Progress = progress.Progress;
+                            progressDialogViewModel.ProgressMessage = progress.ProgressMessage;
+                        });
+
+                        ProcessWatermarkImage(inputImageFilePaths[i], outputFolderPath, watermarkImage, watermarkParams);
+                    }
+
+                    _ = _dispatcher.BeginInvoke(() =>
+                    {
+                        progressDialogViewModel.Progress = inputImageFilePaths.Length;
+                        progressDialogViewModel.ProgressMessage = "Completed";
+                    });
+                },
+                token);
 
             _dialogService.ShowDialog(this, progressDialogViewModel);
         }
