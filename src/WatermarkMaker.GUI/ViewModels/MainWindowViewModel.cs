@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -381,6 +381,12 @@ namespace WatermarkMaker.ViewModels
 
         #endregion
 
+        #region Application settings
+
+        public WindowViewModel Application { get; } = new();
+
+        #endregion
+
         #region Session data
 
         private const string SettingsFileName = "sessionSettings.xml";
@@ -388,32 +394,109 @@ namespace WatermarkMaker.ViewModels
 
         private void SessionToSettings()
         {
-            _settings.WatermarkFilePath = WatermarkFilePath;
-            _settings.InputFolderPath = InputFolderPath;
-            _settings.OutputFolderPath = OutputFolderPath;
-            _settings.Proportion = Proportion;
-            _settings.RightOffset = RightOffset;
-            _settings.BottomOffset = BottomOffset;
-            _settings.BrowseInitialFolder = _browseInitialFolder;
+            SaveLayoutConfiguration();
+            SaveWatermarkConfiguration();
+
             _settings.SerializeToXml(SettingsFileName);
+
+            #region Local functions
+
+            void SaveLayoutConfiguration()
+            {
+                _settings.Window.State = Application.State;
+                _settings.Window.Top = Application.Top;
+                _settings.Window.Left = Application.Left;
+                _settings.Window.Height = Application.Height;
+                _settings.Window.Width = Application.Width;
+            }
+
+            void SaveWatermarkConfiguration()
+            {
+                _settings.WatermarkFilePath = WatermarkFilePath;
+                _settings.InputFolderPath = InputFolderPath;
+                _settings.OutputFolderPath = OutputFolderPath;
+                _settings.Proportion = Proportion;
+                _settings.RightOffset = RightOffset;
+                _settings.BottomOffset = BottomOffset;
+                _settings.BrowseInitialFolder = _browseInitialFolder;
+            }
+
+            #endregion
         }
 
         private SessionSettings SettingsToSession()
         {
+            const double defaultHeight = 450d;
+            const double defaultWidth = 800d;
             SessionSettings settings = DeserializeFromXml<SessionSettings>(SettingsFileName) ?? new SessionSettings
             {
                 Proportion = 0.2d,
                 RightOffset = 0.02d,
-                BottomOffset = 0.02d
+                BottomOffset = 0.02d,
+                Window = new WindowSettings
+                {
+                    State = WindowState.Normal,
+                    Top = 100d,
+                    Left = 100d,
+                    Height = defaultHeight,
+                    Width = defaultWidth
+                }
             };
-            _watermarkFilePath = settings.WatermarkFilePath;
-            _inputFolderPath = settings.InputFolderPath;
-            _outputFolderPath = settings.OutputFolderPath;
-            _proportion = settings.Proportion;
-            _rightOffset = settings.RightOffset;
-            _bottomOffset = settings.BottomOffset;
-            _browseInitialFolder = settings.BrowseInitialFolder;
+
+            ApplyLayoutConfiguration();
+            ApplyWatermarkConfiguration();
+
             return settings;
+
+            #region Local functions
+
+            void ApplyLayoutConfiguration()
+            {
+                Application.State = settings.Window.State;
+
+                Application.Top = settings.Window.Top;
+                Application.Left = settings.Window.Left;
+
+                double height = settings.Window.Height;
+                double width = settings.Window.Width;
+
+                if (height == 0d || width == 0d)
+                {
+                    height = defaultHeight;
+                    width = defaultWidth;
+                }
+                else if (height < 0d && width < 0d)
+                {
+                    height *= -1;
+                    width *= -1;
+                }
+                else if (height < 0d)
+                {
+                    height *= -1;
+                    Application.State = WindowState.Minimized;
+                }
+                else if (width < 0d)
+                {
+                    width *= -1;
+                    Application.State = WindowState.Maximized;
+                }
+
+                Application.Height = height;
+                Application.Width = width;
+            }
+
+            void ApplyWatermarkConfiguration()
+            {
+                _watermarkFilePath = settings.WatermarkFilePath;
+                _inputFolderPath = settings.InputFolderPath;
+                _outputFolderPath = settings.OutputFolderPath;
+                _proportion = settings.Proportion;
+                _rightOffset = settings.RightOffset;
+                _bottomOffset = settings.BottomOffset;
+                _browseInitialFolder = settings.BrowseInitialFolder;
+            }
+
+            #endregion
         }
 
         #endregion

@@ -13,9 +13,14 @@
     xmlns:userControls="clr-namespace:WatermarkMaker.UserControls"
     xmlns:viewModels="clr-namespace:WatermarkMaker.ViewModels"
     Title="Watermark Maker"
-    Height="450" Width="800"
+    WindowState="{Binding Application.State, Mode=TwoWay}"
+    Top="{Binding Application.Top, Mode=TwoWay}"
+    Left="{Binding Application.Left, Mode=TwoWay}"
+    Height="{Binding Application.Height, Mode=TwoWay}"
+    Width="{Binding Application.Width, Mode=TwoWay}"
     dialogs:DialogServiceViews.IsRegistered="True"
-    d:DataContext="{d:DesignInstance {x:Type viewModels:MainWindowViewModel}}">
+    d:DataContext="{d:DesignInstance {x:Type viewModels:MainWindowViewModel}}"
+    d:Height="450" d:Width="800">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
             <i:InvokeCommandAction Command="{Binding CloseCommand, Mode=OneTime}"/>

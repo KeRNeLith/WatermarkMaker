@@ -8,6 +8,9 @@ namespace WatermarkMaker.Data
         [XmlElement("Version")]
         public int Version { get; set; } = 1;
 
+        [XmlElement("Application")]
+        public WindowSettings Window { get; set; } = new();
+
         [XmlElement("WatermarkFile")]
         public string WatermarkFilePath { get; set; } = string.Empty;
 
