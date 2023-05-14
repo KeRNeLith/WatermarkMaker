@@ -20,7 +20,7 @@
     Width="{Binding Application.Width, Mode=TwoWay}"
     dialogs:DialogServiceViews.IsRegistered="True"
     d:DataContext="{d:DesignInstance {x:Type viewModels:MainWindowViewModel}}"
-    d:Height="450" d:Width="800">
+    d:DesignHeight="450" d:DesignWidth="800">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
             <i:InvokeCommandAction Command="{Binding CloseCommand, Mode=OneTime}"/>
@@ -58,44 +58,62 @@
                 Grid.Row="0" Grid.Column="1"
                 Margin="4 0 0 0"
                 Path="{Binding WatermarkFilePath, Mode=TwoWay}"
+                OpenCommand="{Binding OpenFileCommand, Mode=OneTime}"
                 BrowseCommand="{Binding BrowseWatermarkFileCommand, Mode=OneTime}" />
 
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="Input folder:"/>
+            <TextBlock
+                Grid.Row="1" Grid.Column="0"
+                Margin="0 4 0 0"
+                Text="Input folder:"/>
             <userControls:PathPicker
                 Grid.Row="1" Grid.Column="1"
-                Margin="4 0 0 0"
+                Margin="4 4 0 0"
                 Path="{Binding InputFolderPath, Mode=TwoWay}"
+                OpenCommand="{Binding OpenFolderCommand, Mode=OneTime}"
                 BrowseCommand="{Binding BrowseInputFolderCommand, Mode=OneTime}" />
 
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="Output folder:"/>
+            <TextBlock
+                Grid.Row="2" Grid.Column="0"
+                Margin="0 4 0 0"
+                Text="Output folder:"/>
             <userControls:PathPicker
                 Grid.Row="2" Grid.Column="1"
-                Margin="4 0 0 0"
+                Margin="4 4 0 0"
                 Path="{Binding OutputFolderPath, Mode=TwoWay}"
+                OpenCommand="{Binding OpenFolderCommand, Mode=OneTime}"
                 BrowseCommand="{Binding BrowseOutputFolderCommand, Mode=OneTime}" />
 
-            <TextBlock Grid.Row="3" Grid.Column="0" Text="Proportion:"/>
+            <TextBlock
+                Grid.Row="3" Grid.Column="0"
+                Margin="0 4 0 0"
+                Text="Proportion:"/>
             <xceed:DoubleUpDown
                 Grid.Row="3" Grid.Column="1"
-                Margin="4 0 0 0"
+                Margin="4 4 0 0"
                 Minimum="0.01" Maximum="1"
                 FormatString="P"
                 Increment="0.01"
                 Value="{Binding Proportion, Mode=TwoWay}" />
 
-            <TextBlock Grid.Row="4" Grid.Column="0" Text="Right offset:"/>
+            <TextBlock
+                Grid.Row="4" Grid.Column="0"
+                Margin="0 4 0 0"
+                Text="Right offset:"/>
             <xceed:DoubleUpDown
                 Grid.Row="4" Grid.Column="1"
-                Margin="4 0 0 0"
+                Margin="4 4 0 0"
                 Minimum="0" Maximum="1"
                 FormatString="P"
                 Increment="0.01"
                 Value="{Binding RightOffset, Mode=TwoWay}" />
 
-            <TextBlock Grid.Row="5" Grid.Column="0" Text="Bottom offset:"/>
+            <TextBlock
+                Grid.Row="5" Grid.Column="0"
+                Margin="0 4 0 0"
+                Text="Bottom offset:"/>
             <xceed:DoubleUpDown
                 Grid.Row="5" Grid.Column="1"
-                Margin="4 0 0 0"
+                Margin="4 4 0 0"
                 Minimum="0" Maximum="1"
                 FormatString="P"
                 Increment="0.01"

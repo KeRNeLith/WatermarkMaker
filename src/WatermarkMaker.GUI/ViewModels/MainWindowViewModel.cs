@@ -20,6 +20,7 @@ using WatermarkMaker.Utils;
 using static WatermarkMaker.SupportedExtensions;
 using static WatermarkMaker.Utils.ImageUtils;
 using static WatermarkMaker.Utils.SerializationUtils;
+using static WatermarkMaker.Utils.WindowsUtils;
 using static WatermarkMaker.WatermarkUtils;
 using Image = System.Drawing.Image;
 using Timer = System.Timers.Timer;
@@ -36,6 +37,8 @@ namespace WatermarkMaker.ViewModels
             _dispatcher = dispatcher;
             _dialogService = dialogService;
 
+            OpenFileCommand = new DelegateCommand<string>(OnOpenFile);
+            OpenFolderCommand = new DelegateCommand<string>(OnOpenFolder);
             BrowseWatermarkFileCommand = new DelegateCommand(OnBrowseWatermarkFile);
             BrowseInputFolderCommand = new DelegateCommand(OnBrowseInputFolder);
             BrowseOutputFolderCommand = new DelegateCommand(OnBrowseOutputFolder);
@@ -53,6 +56,24 @@ namespace WatermarkMaker.ViewModels
         }
 
         private string _browseInitialFolder = string.Empty;
+
+        #region Open commands
+
+        public ICommand OpenFileCommand { get; }
+
+        private static void OnOpenFile(string filePath)
+        {
+            TrySelectPath(filePath);
+        }
+
+        public ICommand OpenFolderCommand { get; }
+
+        private static void OnOpenFolder(string folderPath)
+        {
+            TryOpenFolder(folderPath);
+        }
+
+        #endregion
 
         #region Watermark file
 
