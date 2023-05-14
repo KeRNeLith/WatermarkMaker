@@ -17,7 +17,7 @@
             Grid.Column="0"
             Text="{Binding Path=Path, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type userControls:PathPicker}}, Mode=TwoWay}" />
         <Button
-            Grid.Column="1" Margin="2 0" MinWidth="20"
+            Grid.Column="1" Margin="2 0 0 0" MinWidth="20"
             Content="..."
             Command="{Binding Path=BrowseCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type userControls:PathPicker}}, Mode=OneWay}" />
     </Grid>
